@@ -1,25 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { CartIcon } from "@/components/CartIcon";
+import { SearchInput } from "@/components/SearchInput";
 import { useState, useEffect } from "react";
-import { Search } from "lucide-react";
 
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [user, setUser] = useState<any>(null);
-  const [searchValue, setSearchValue] = useState("");
-
-  // Sync search input with URL
-  useEffect(() => {
-    setSearchValue(searchParams.get("search") || "");
-  }, [searchParams]);
 
   useEffect(() => {
     // Check user function
@@ -51,15 +43,6 @@ export function Navbar() {
     window.location.href = "/login";
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchValue.trim()) {
-      router.push(`/?search=${encodeURIComponent(searchValue)}`);
-    } else {
-      router.push("/");
-    }
-  };
-
   const navItems = [
     { label: "Login", href: "/login", show: !user },
     { label: "Register", href: "/register", show: !user },
@@ -82,19 +65,9 @@ export function Navbar() {
           {/* Search Bar */}
           {/* Search Bar - Only for logged in users */}
           {user && (
-            <form onSubmit={handleSearch} className="flex-1 max-w-md hidden md:flex items-center relative">
-              <Input
-                type="search"
-                placeholder="Tìm kiếm sản phẩm..."
-                className="w-full rounded-full bg-white/50 border-neutral-200 pl-10 focus-visible:ring-indigo-500"
-                value={searchValue}
-                onChange={(e) => {
-                  setSearchValue(e.target.value);
-                  if (e.target.value === "") router.push("/");
-                }}
-              />
-              <Search className="absolute left-3.5 w-4 h-4 text-neutral-500" />
-            </form>
+            <div className="flex-1 max-w-md hidden md:block">
+              <SearchInput />
+            </div>
           )}
 
           {/* Links & Actions */}
