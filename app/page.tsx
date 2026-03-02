@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, Suspense } from "react";
+import { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { ProductGrid } from "@/components/ProductGrid";
 import { PRODUCTS } from "@/lib/products";
@@ -16,17 +16,6 @@ function ProductContent() {
 
   const [activeFilter, setActiveFilter] = useState("All");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Check auth
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    if (!isLoggedIn) {
-      window.location.href = "/login";
-    } else {
-      setIsLoading(false);
-    }
-  }, []);
 
   // Filter & Search Logic
   const filteredProducts = useMemo(() => {
@@ -83,8 +72,6 @@ function ProductContent() {
       setTimeout(() => toast.remove(), 300);
     }, 3000);
   };
-
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
 
   return (
     <main className="container mx-auto px-4 py-12">

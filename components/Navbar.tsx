@@ -7,38 +7,37 @@ import { cn } from "@/lib/utils";
 import { CartIcon } from "@/components/CartIcon";
 import { SearchInput } from "@/components/SearchInput";
 import { useState, useEffect } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const supabase = createClient();
 
   useEffect(() => {
-    // Check user function
-    const checkUser = () => {
-      const isLoggedIn = localStorage.getItem("isLoggedIn");
-      const storedUser = localStorage.getItem("currentUser");
-      if (isLoggedIn && storedUser) {
-        setUser(JSON.parse(storedUser));
-      } else {
-        setUser(null);
-      }
+    // Initial session check
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
     };
 
-    // Initial check
-    checkUser();
+    getSession();
 
-    // Listeners
-    window.addEventListener('authUpdated', checkUser);
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
 
     return () => {
-      window.removeEventListener('authUpdated', checkUser);
+      subscription.unsubscribe();
     };
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("currentUser");
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
     window.location.href = "/login";
   };
@@ -62,21 +61,15 @@ export function Navbar() {
             </span>
           </Link>
 
-          {/* Search Bar */}
-          {/* Search Bar - Only for logged in users */}
-          {user && (
-            <div className="flex-1 max-w-md hidden md:block">
-              <SearchInput />
-            </div>
-          )}
+          {/* Search Bar - Visible to all */}
+          <div className="flex-1 max-w-md hidden md:block">
+            <SearchInput />
+          </div>
 
           {/* Links & Actions */}
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* Cart */}
-            {/* Cart - Only for logged in users */}
-            {user && (
-              <CartIcon />
-            )}
+            {/* Cart - Visible to all */}
+            <CartIcon />
 
             {!user ? (
               <div className="flex items-center gap-2">
@@ -89,7 +82,10 @@ export function Navbar() {
               </div>
             ) : (
               <div className="flex items-center gap-3">
-                <span className="text-sm font-medium hidden lg:block">Hi, {user.fullname}</span>
+                <Button variant="ghost" asChild className="hidden sm:inline-flex rounded-full text-neutral-600 hover:text-neutral-900">
+                  <Link href="/orders">Orders</Link>
+                </Button>
+                <span className="text-sm font-medium hidden lg:block text-neutral-700">Hi, {user.user_metadata?.full_name || user.email?.split("@")[0]}</span>
                 <Button
                   onClick={handleLogout}
                   variant="ghost"

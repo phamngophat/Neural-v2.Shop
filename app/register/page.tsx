@@ -1,15 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { createClient } from "@/utils/supabase/client";
 
 export default function RegisterPage() {
     const router = useRouter();
+    const supabase = createClient();
+
+    useEffect(() => {
+        const checkSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) {
+                router.push("/");
+            }
+        };
+        checkSession();
+    }, [router, supabase.auth]);
+
     const [formData, setFormData] = useState({
         fullname: "",
         email: "",
@@ -61,36 +74,30 @@ export default function RegisterPage() {
         return isValid;
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (validate()) {
             setIsSubmitting(true);
+            const supabase = createClient();
 
-            // Check for existing users
-            const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
-            const userExists = existingUsers.some((u: any) => u.email === formData.email);
-
-            if (userExists) {
-                setErrors((prev) => ({ ...prev, email: "This email is already registered" }));
-                setIsSubmitting(false);
-                return;
-            }
-
-            // Save new user
-            const newUser = {
-                fullname: formData.fullname,
+            const { error } = await supabase.auth.signUp({
                 email: formData.email,
-                password: formData.password, // In a real app, hash this!
-            };
-            existingUsers.push(newUser);
-            localStorage.setItem("users", JSON.stringify(existingUsers));
+                password: formData.password,
+                options: {
+                    data: {
+                        full_name: formData.fullname,
+                    }
+                }
+            });
 
-            // Simulate API call
-            setTimeout(() => {
-                setIsSubmitting(false);
+            setIsSubmitting(false);
+
+            if (error) {
+                setErrors((prev) => ({ ...prev, email: error.message }));
+            } else {
                 alert("Account created successfully! Please login.");
                 router.push("/login");
-            }, 1000);
+            }
         }
     };
 

@@ -7,8 +7,12 @@ import { CartItem } from "@/components/CartItem";
 import { getCart, removeFromCart, updateQuantity, getCartTotal, CartItem as CartItemType } from "@/lib/cart";
 import { ArrowLeft, ShoppingBag } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 export default function CartPage() {
+    const router = useRouter();
+    const supabase = createClient();
     const [cartItems, setCartItems] = useState<CartItemType[]>([]);
     const [total, setTotal] = useState(0);
     const [isLoaded, setIsLoaded] = useState(false);
@@ -26,6 +30,55 @@ export default function CartPage() {
         window.addEventListener("cartUpdated", handleCartUpdate);
         return () => window.removeEventListener("cartUpdated", handleCartUpdate);
     }, []);
+
+    const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+    const handleCheckout = async () => {
+        if (cartItems.length === 0) return;
+
+        setIsCheckingOut(true);
+
+        // 1. Check Auth Status
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (!session?.user) {
+            alert("You need to login before checking out.");
+            router.push("/login?redirect=/cart");
+            setIsCheckingOut(false);
+            return;
+        }
+
+        // 2. Insert into Supabase Orders Table
+        const orderData = {
+            user_id: session.user.id,
+            total_price: total,
+            items: cartItems.map(item => ({
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity
+            }))
+        };
+
+        const { error } = await supabase
+            .from("orders")
+            .insert([orderData]);
+
+        setIsCheckingOut(false);
+
+        if (error) {
+            console.error("Order error:", error);
+            alert("Failed to place order. Please try again.");
+            return;
+        }
+
+        // 3. Clear Cart & Show Success
+        localStorage.removeItem("shopping-cart");
+        window.dispatchEvent(new Event("cartUpdated"));
+
+        alert("Order placed successfully! Thank you for your purchase.");
+        router.push("/");
+    };
 
     if (!isLoaded) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
 
@@ -78,9 +131,13 @@ export default function CartPage() {
                                         <span>{formatCurrency(total)}</span>
                                     </div>
                                 </div>
-                                <Button className="w-full h-12 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white shadow-lg shadow-neutral-500/20 font-semibold gap-2">
+                                <Button
+                                    onClick={handleCheckout}
+                                    disabled={isCheckingOut || cartItems.length === 0}
+                                    className="w-full h-12 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white shadow-lg shadow-neutral-500/20 font-semibold gap-2 transition-all"
+                                >
                                     <ShoppingBag className="w-4 h-4" />
-                                    Checkout
+                                    {isCheckingOut ? "Processing..." : "Checkout"}
                                 </Button>
                                 <p className="text-xs text-center text-neutral-400 mt-4">
                                     Secure Checkout - SSL Encrypted
