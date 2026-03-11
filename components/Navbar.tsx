@@ -85,6 +85,9 @@ export function Navbar() {
                 <Button variant="ghost" asChild className="hidden sm:inline-flex rounded-full text-neutral-600 hover:text-neutral-900">
                   <Link href="/orders">Orders</Link>
                 </Button>
+                <Button variant="ghost" asChild className="hidden sm:inline-flex rounded-full text-neutral-600 hover:text-neutral-900">
+                  <Link href="/chat">Chat</Link>
+                </Button>
                 <span className="text-sm font-medium hidden lg:block text-neutral-700">Hi, {user.user_metadata?.full_name || user.email?.split("@")[0]}</span>
                 <Button
                   onClick={handleLogout}

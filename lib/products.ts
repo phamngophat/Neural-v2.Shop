@@ -1,12 +1,10 @@
-import { Product } from "./types";
-
-export const PRODUCTS: Product[] = [
+export const PRODUCTS = [
     // AI Tools
     {
         id: 1,
         name: "ChatGPT Plus",
         image: "/auth-v2.png",
-        description: "Unlock GPT-4, DALL-E 3, and advanced data analysis features.",
+        description: "Unlock GPT-4, DALL-E 3, and advanced data analysis features. Support GPT-4o voice and vision.",
         price: 499000,
         category: "AI Tools"
     },
@@ -14,7 +12,7 @@ export const PRODUCTS: Product[] = [
         id: 2,
         name: "Gemini Advanced",
         image: "/auth-v3.png",
-        description: "Google's most capable AI model for complex tasks and coding.",
+        description: "Google's most capable AI model for complex tasks and coding. Includes 2TB Google One storage.",
         price: 479000,
         category: "AI Tools"
     },
@@ -22,7 +20,7 @@ export const PRODUCTS: Product[] = [
         id: 3,
         name: "Cursor Pro",
         image: "/auth-v4.png",
-        description: "The AI-first code editor. Build software faster with specialized AI.",
+        description: "The AI-first code editor. Build software faster with specialized AI. Includes Claude 3.5 Sonnet and GPT-4o.",
         price: 499000,
         category: "AI Tools"
     },
@@ -38,7 +36,7 @@ export const PRODUCTS: Product[] = [
         id: 5,
         name: "Canva Pro",
         image: "/auth-v6.png",
-        description: "Unlimited access to premium tools, content, and magic AI features.",
+        description: "Unlimited access to premium tools, content, and magic AI features. Great for design and marketing.",
         price: 149000,
         category: "AI Tools"
     },
@@ -88,7 +86,7 @@ export const PRODUCTS: Product[] = [
         id: 11,
         name: "Lien Quan Map Hack",
         image: "/game-aov.png",
-        description: "Map view, cooldown reduction, enemy position revealer.",
+        description: "Map view, cooldown reduction, enemy position revealer. Safe for standard gameplay.",
         price: 50000,
         category: "Game Services"
     },
