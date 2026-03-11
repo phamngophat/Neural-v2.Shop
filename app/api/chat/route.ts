@@ -69,7 +69,7 @@ Your tone should be friendly, polite, and helpful in Vietnamese.
             const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Xin lỗi, tôi không thể trả lời lúc này.";
 
             return NextResponse.json({ response: aiText });
-        } catch (apiError: any) {
+        } catch (apiError) {
             console.error("Gemini API Error Catch:", apiError);
             return NextResponse.json({
                 response: "Xin lỗi quý khách, hệ thống AI (Gemini) hiện tại đang bị lỗi kết nối hoặc hết hạn ngạch. Vui lòng thử lại sau giây lát. 🙏"

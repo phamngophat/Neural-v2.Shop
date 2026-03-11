@@ -24,6 +24,7 @@ export default function ChatPage() {
             setLoading(false);
         };
         checkAuth();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleLogout = async () => {
@@ -83,7 +84,7 @@ export default function ChatPage() {
                     </div>
                     <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-100 to-violet-100 border-2 border-white shadow-sm flex items-center justify-center text-indigo-700 font-bold uppercase overflow-hidden ring-2 ring-indigo-500/10">
                         {user.user_metadata?.avatar_url ? (
-                            <img src={user.user_metadata.avatar_url} className="w-full h-full object-cover" />
+                            <img src={user.user_metadata.avatar_url} alt="User Avatar" className="w-full h-full object-cover" />
                         ) : (
                             userName.charAt(0)
                         )}
